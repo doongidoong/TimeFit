@@ -31,6 +31,7 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom {
                         , reservation.start.between(request.getStart(),request.getEnd())
                                 .or(reservation.end.between(request.getStart(),request.getStart()))
                 )
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                 .fetch().size() == 0){
             return true;
         }

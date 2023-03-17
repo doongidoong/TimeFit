@@ -11,6 +11,7 @@ import com.project.repository.ReservationRepository;
 import com.project.repository.UserRepository;
 import com.project.request.ReservationRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.LockAcquisitionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,7 +84,7 @@ class ReservationServiceTest {
             service.execute(()->{
                 try{
                     reservationService.requestReservation(center.getId(), request, user);
-                } catch (RuntimeException e){
+                } catch (RuntimeException e) {
                     Assertions.assertEquals("예약 불가한 시간입니다."
                             , e.getMessage());
                     log.info("예약에 실패하였습니다.");
@@ -94,6 +95,65 @@ class ReservationServiceTest {
 
         //then
         Assertions.assertEquals(1,reservationRepository.findAll().size());
+
+    }
+    @Test
+    void doubleBookingTestForNextKeyLock() throws Exception{
+        //given
+        User user= User.builder()
+                .email("id@naver.com")
+                .password("1234")
+                .name("이름")
+                .phoneNumber("010-2323-3333")
+                .birth("birth")
+                .roles(Collections.singletonList("ROLE_USER"))
+                .build();
+        userRepository.save(user);
+        Center center = Center.builder()
+                .name("상품")
+                .build();
+        centerRepository.save(center);
+        CenterEquipment centerEquipment = CenterEquipment.builder()
+                .center(center)
+                .build();
+        centerEquipmentRepository.save(centerEquipment);
+
+        ExecutorService service = Executors.newFixedThreadPool(2);
+        CountDownLatch latch = new CountDownLatch(2);
+        LocalDate now = LocalDate.now();
+        ReservationRequest request = ReservationRequest.builder()
+                .centerEquipmentId(centerEquipment.getId())
+                .start(LocalDateTime.parse(now+"T10:45:00"))
+                .end(LocalDateTime.parse(now+"T10:55:00"))
+                .build();
+        ReservationRequest request2 = ReservationRequest.builder()
+                .centerEquipmentId(centerEquipment.getId())
+                .start(LocalDateTime.parse(now+"T09:45:00"))
+                .end(LocalDateTime.parse(now+"T09:55:00"))
+                .build();
+        ReservationRequest request3 = ReservationRequest.builder()
+                .centerEquipmentId(centerEquipment.getId())
+                .start(LocalDateTime.parse(now+"T11:45:00"))
+                .end(LocalDateTime.parse(now+"T11:55:00"))
+                .build();
+        reservationService.requestReservation(center.getId(),request2,user);
+        reservationService.requestReservation(center.getId(),request3,user);
+        //when
+        for (int i = 0; i < 2; i++) {
+            service.execute(()->{
+                try{
+                    reservationService.requestReservation(center.getId(), request, user);
+                } catch (RuntimeException e) {
+                    Assertions.assertEquals("예약 불가한 시간입니다."
+                            , e.getMessage());
+                    log.info("예약에 실패하였습니다.");
+                }
+                latch.countDown();
+            });
+        }latch.await();
+
+        //then
+        Assertions.assertEquals(3,reservationRepository.findAll().size());
 
     }
 }
