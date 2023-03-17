@@ -33,7 +33,8 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final CenterRepository centerRepository;
     private final CenterEquipmentRepository centerEquipmentRepository;
-
+    // 예약 정보를 갖는 Map 초기화
+    private Map<Long, Queue<Long>> reserveQueue = new ConcurrentHashMap<>();
 
     // 헬스장 기구의 예약 내역 조회
     public List<ReservationResponse> getReservation(Long id, ReservationSearch request){
@@ -48,12 +49,17 @@ public class ReservationService {
         }
         return reservationList;
     }
+    public void addCenterInQueue(Long centerEquipId){
+        reserveQueue.put(centerEquipId,new LinkedList<>());
+    }
     // 예약 요청
-    public synchronized void requestReservation(Long centerId, ReservationRequest request, User user){
+    public void requestReservation(Long centerId, ReservationRequest request, User user){
         //예약 있을 시 예외처리
-        if (!reservationRepository.check(request.getCenterEquipmentId(), request)) {
-            throw new ReservationExist();
-        }
+
+        //예약이 있는지 DB에 조회 후 예약이 있다면 있을 시 예외처리
+//        if(!reservationRepository.check(centerId, request)){
+//            throw new ReservationExist();
+//        }
 
         // 예약 정보를 만들기 위해 센터 id와 기구 id로부터 정보를 불러옴
         Center center = centerRepository.findById(centerId)
@@ -68,7 +74,30 @@ public class ReservationService {
                 .user(user)
                 .build());
     }
+    //예약 큐를 통한 예약 처리
+    public void requestReservationByQueue(Long centerId, ReservationRequest request, User user){
+        Long threadId = Thread.currentThread().getId();
+        reserveQueue.get(request.getCenterEquipmentId()).add(threadId);
 
+        while(true){
+            //큐의 첫번째가 예약 정보와 같다면
+            if(reserveQueue.get(request.getCenterEquipmentId()).peek().equals(threadId)) {
+                // 예약 메소드 호출
+                if(!reservationRepository.check(centerId, request)){
+                    reserveQueue.get(request.getCenterEquipmentId()).remove(threadId);
+                    throw new ReservationExist();
+                }
+                break;
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        requestReservation(centerId, request, user);
+        reserveQueue.get(request.getCenterEquipmentId()).remove(threadId); // 예약 요청 정보를 내보냄
+    }
     // 예약 ID를 통해 예약 취소
     public void cancelReservation(Long reservationId) {
         reservationRepository.deleteById(reservationId);
