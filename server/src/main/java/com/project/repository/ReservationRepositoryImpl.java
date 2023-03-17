@@ -31,8 +31,9 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom {
                         , reservation.start.between(request.getStart(),request.getEnd())
                                 .or(reservation.end.between(request.getStart(),request.getStart()))
                 )
-                .fetch().size() == 0)
+                .fetch().size() == 0){
             return true;
+        }
         return false;
     }
 

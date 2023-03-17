@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReservationRepositoryCustom {
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+
     boolean check(Long id, ReservationRequest reservationRequest);
 
     List<Reservation> getReserve(Long id, String date, Long equipment);

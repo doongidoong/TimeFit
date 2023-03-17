@@ -1,5 +1,6 @@
 package com.project.service;
 
+
 import com.project.domain.Center;
 import com.project.domain.CenterEquipment;
 import com.project.domain.Reservation;
@@ -19,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -32,6 +33,8 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final CenterRepository centerRepository;
     private final CenterEquipmentRepository centerEquipmentRepository;
+
+
     // 헬스장 기구의 예약 내역 조회
     public List<ReservationResponse> getReservation(Long id, ReservationSearch request){
         List<ReservationResponse> reservationList = new ArrayList<>();
@@ -46,27 +49,26 @@ public class ReservationService {
         return reservationList;
     }
     // 예약 요청
-
-    public void requestReservation(Long id, ReservationRequest request, User user){
-
+    public synchronized void requestReservation(Long centerId, ReservationRequest request, User user){
         //예약 있을 시 예외처리
-        if(!reservationRepository.check(id, request)){
+        if (!reservationRepository.check(request.getCenterEquipmentId(), request)) {
             throw new ReservationExist();
         }
+
         // 예약 정보를 만들기 위해 센터 id와 기구 id로부터 정보를 불러옴
-        Center center = centerRepository.findById(id)
+        Center center = centerRepository.findById(centerId)
                 .orElseThrow(CenterNotFound::new);
         CenterEquipment ce = centerEquipmentRepository.findById(request.getCenterEquipmentId())
                 .orElseThrow();
-        Reservation rv = Reservation.builder()
+        reservationRepository.saveAndFlush(Reservation.builder()
                 .center(center)
                 .centerEquipment(ce)
                 .start(request.getStart())
                 .end(request.getEnd())
                 .user(user)
-                .build();
-        reservationRepository.save(rv);
+                .build());
     }
+
     // 예약 ID를 통해 예약 취소
     public void cancelReservation(Long reservationId) {
         reservationRepository.deleteById(reservationId);
@@ -77,4 +79,10 @@ public class ReservationService {
                 .map(ReservationUserResponse::new)
                 .collect(Collectors.toList());
     }
+
+
+
+
+
+
 }

@@ -69,7 +69,7 @@ class ReservationServiceTest {
                 .center(center)
                 .build();
         centerEquipmentRepository.save(centerEquipment);
-        reservationService.addCenterInQueue(centerEquipment.getId());
+
         ExecutorService service = Executors.newFixedThreadPool(2);
         CountDownLatch latch = new CountDownLatch(2);
         LocalDate now = LocalDate.now();
@@ -84,7 +84,7 @@ class ReservationServiceTest {
                 try{
                     reservationService.requestReservation(center.getId(), request, user);
                 } catch (RuntimeException e){
-                    Assertions.assertEquals("com.project.exception.ReservationExist: 예약 불가한 시간입니다."
+                    Assertions.assertEquals("예약 불가한 시간입니다."
                             , e.getMessage());
                     log.info("예약에 실패하였습니다.");
                 }
