@@ -204,4 +204,52 @@ class ReservationServiceTest {
         Assertions.assertEquals(1,reservationRepository.findAll().size());
 
     }
+    @Test
+    void doubleBookingTestForRedis() throws Exception{
+        //given
+        User user= User.builder()
+                .email("id@naver.com")
+                .password("1234")
+                .name("이름")
+                .phoneNumber("010-2323-3333")
+                .birth("birth")
+                .roles(Collections.singletonList("ROLE_USER"))
+                .build();
+        userRepository.save(user);
+        Center center = Center.builder()
+                .name("상품")
+                .build();
+        centerRepository.save(center);
+        CenterEquipment centerEquipment = CenterEquipment.builder()
+                .center(center)
+                .build();
+        centerEquipmentRepository.save(centerEquipment);
+
+        ExecutorService service = Executors.newFixedThreadPool(5);
+        CountDownLatch latch = new CountDownLatch(5);
+        LocalDate now = LocalDate.now();
+        ReservationRequest request = ReservationRequest.builder()
+                .centerEquipmentId(centerEquipment.getId())
+                .start(LocalDateTime.parse(now+"T10:45:00"))
+                .end(LocalDateTime.parse(now+"T10:55:00"))
+                .build();
+        reservationService.addCenterInQueue(centerEquipment.getId());
+        //when
+        for (int i = 0; i < 5; i++) {
+            service.execute(()->{
+                try{
+                    reservationService.requestReservationByLock(center.getId(), request, user);
+                } catch (RuntimeException e) {
+                    Assertions.assertEquals("com.project.exception.ReservationExist: 예약 불가한 시간입니다."
+                            , e.getMessage());
+                    log.info("예약에 실패하였습니다.");
+                }
+                latch.countDown();
+            });
+        }latch.await();
+
+        //then
+        Assertions.assertEquals(1,reservationRepository.findAll().size());
+
+    }
 }
