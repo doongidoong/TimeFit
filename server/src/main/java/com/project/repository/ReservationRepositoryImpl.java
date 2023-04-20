@@ -5,9 +5,7 @@ import com.project.request.ReservationRequest;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.springframework.data.jpa.repository.Lock;
 
-import javax.persistence.LockModeType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,17 +23,13 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom {
     @Override
     public boolean check(Long id, ReservationRequest request){
         if (jpaQueryFactory.selectFrom(reservation)
-                .where(
-                        reservation.center.id.eq(id)
-                        , reservation.centerEquipment.id.eq(request.getCenterEquipmentId())
-                        , reservation.start.between(request.getStart(),request.getEnd())
-                                .or(reservation.end.between(request.getStart(),request.getStart()))
-                )
-                //.setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                .fetch().size() == 0){
+                .where(reservation.center.id.eq(id),
+                        reservation.centerEquipment.id.eq(request.getCenterEquipmentId()),
+                        reservation.start.between(request.getStart(),request.getEnd())
+                                .or(reservation.end.between(request.getStart(),request.getStart()))                        )
+                .fetch().size() == 0)
             return true;
-        }
-        return false;
+        return false; 
     }
 
     // 예약정보 확인

@@ -59,7 +59,6 @@ public class SignController {
         TokenResponse tokenResponse = signService.signIn(request);
         Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
         accessCookie.setPath("/");
-        //테스트를 위해 잠시 주석 처리
 //         accessCookie.setHttpOnly(true);
 //         accessCookie.setSecure(true);
         response.addCookie(accessCookie);
@@ -92,9 +91,6 @@ public class SignController {
         Optional<User> user =signService.getByEmail(email);
         System.out.println(user);
         if(user.isEmpty()==false) throw new UserExist();
-        //1. 인증번호 전송 로직
-        //2. 인증번호 받기
-        //3. 인증 처리
         return ;
     }
 
@@ -153,6 +149,7 @@ public class SignController {
     @PostMapping("/signup/add-trainer/{centerId}")
     public void addTrainer(@PathVariable Long centerId, @RequestBody TrainerRequest trainer ) {
         Center center = centerService.getCenterByID(centerId);
+
         signService.addTrainer(center, trainer);
     }
 

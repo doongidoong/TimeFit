@@ -13,9 +13,11 @@ import com.project.request.UserInfoRequest;
 import com.project.response.CenterDetailResponse;
 import com.project.response.CenterImgResponse;
 import com.project.response.CenterResponse;
+import com.project.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,9 +32,7 @@ public class UserInfoService {
 
     private final UserRepository userRepository;
     private final CenterRepository centerRepository;
-    @Autowired
     private final PasswordEncoder passwordEncoder;
-
 
     public User get(Long msrl) {
         User user = userRepository.findById(msrl)
@@ -40,20 +40,34 @@ public class UserInfoService {
         return user;
     }
 
-    public User changePassword(UserInfoRequest request){
+    public UserInfoResponse changePassword(User loginUser,  UserInfoRequest request){
         //Long msrl, String Email
         User user= userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFound::new);
+        if(loginUser.getMsrl()!=user.getMsrl()) throw new UserNotFound();
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
-        return user;
+        return UserInfoResponse.builder().email(user.getEmail())
+                .gender(user.getGender())
+                .birth(user.getBirth())
+                .name(user.getName())
+                .center(user.getCenter())
+                .msrl(user.getMsrl())
+                .phoneNumber(user.getPhoneNumber())
+                .build();
     }
-    public User changeCenter(UserInfoRequest request){
+    public UserInfoResponse changeCenter(User loginUser, UserInfoRequest request){
         //Long msrl, String Email
         User user= userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFound::new);
-        Center center = centerRepository.findById(request.getCenterId()).orElseThrow(CenterNotFound::new);
+        Center center = centerRepository.findByIdFetchJoin(request.getCenterId());
+        if(loginUser.getMsrl()!=user.getMsrl()) throw new UserNotFound();
         user.setCenter(center);
         userRepository.save(user);
-        return user;
+        return UserInfoResponse.builder().email(user.getEmail())
+                .gender(user.getGender())
+                .birth(user.getBirth())
+                .name(user.getName())
+                .msrl(user.getMsrl())
+                .phoneNumber(user.getPhoneNumber())
+                .build();
     }
-
 }

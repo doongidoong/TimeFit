@@ -63,13 +63,12 @@ public class CenterService {
     }
 
     public Center getCenterByID(Long centerId){
-        Center center = centerRepository.findById(centerId)
-                .orElseThrow(CenterNotFound::new);
+        Center center = centerRepository.findByIdFetchJoin(centerId);
         return center;
     }
 
 //    @Transactional
-    public Center update(CenterInfo centerInfo){
+    public void update(CenterInfo centerInfo){
         Center center = centerRepository.findById(centerInfo.getCenterId())
                 .orElseThrow(CenterNotFound::new);
         CenterEditor.CenterEditorBuilder editorBuilder = center.toEditor(); //빌더클래스를 받음
@@ -81,6 +80,5 @@ public class CenterService {
                 .phoneNumber(centerInfo.getPhoneNumber())
                 .build();
         center.edit(centerEditor);
-        return center;
     }
 }

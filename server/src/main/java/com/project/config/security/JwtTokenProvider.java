@@ -41,11 +41,6 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
     // Jwt 토큰 생성
     public String createToken(String userPk, List<String> roles, long tokenValidMilisecond) {
         Claims claims = Jwts.claims().setSubject(userPk);
-        System.out.println("CRESTA");
-
-        System.out.println(userPk);
-        System.out.println(roles);
-
         claims.put("roles", roles);
         Date now = new Date();
         return Jwts.builder()

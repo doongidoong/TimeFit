@@ -65,32 +65,14 @@ public class UserController {
     @Transactional
     @PostMapping("/user/change-password")
     public UserInfoResponse changePassword(@AuthenticationPrincipal User loginUser, @RequestBody UserInfoRequest userInfoRequest ) {
-        User user = userInfoService.changePassword(userInfoRequest);
-        if(loginUser.getMsrl()!=user.getMsrl()) throw new UserNotFound();
-        return UserInfoResponse.builder().email(user.getEmail())
-                .gender(user.getGender())
-                .birth(user.getBirth())
-                .name(user.getName())
-                .center(user.getCenter())
-                .msrl(user.getMsrl())
-                .phoneNumber(user.getPhoneNumber())
-                .build();
+        return  userInfoService.changePassword(loginUser, userInfoRequest);
     }
 
     /*유저 센터 변경*/
     @Transactional
     @PostMapping("/user/change-center")
     public UserInfoResponse changeCenter(@AuthenticationPrincipal User loginUser, @RequestBody UserInfoRequest userInfoRequest ) {
-        User user = userInfoService.changeCenter(userInfoRequest);
-        if(loginUser.getMsrl()!=user.getMsrl()) throw new UserNotFound();
-        return UserInfoResponse.builder().email(user.getEmail())
-                .gender(user.getGender())
-                .birth(user.getBirth())
-                .name(user.getName())
-                .center(user.getCenter())
-                .msrl(user.getMsrl())
-                .phoneNumber(user.getPhoneNumber())
-                .build();
+        return userInfoService.changeCenter(loginUser, userInfoRequest);
     }
 
 }
