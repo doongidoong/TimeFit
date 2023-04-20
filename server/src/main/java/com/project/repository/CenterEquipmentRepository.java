@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface CenterEquipmentRepository extends JpaRepository<CenterEquipment, Long> {
 
-    @EntityGraph(attributePaths = {"center"},type = EntityGraphType.LOAD)
+//    @EntityGraph(attributePaths = {"center"},type = EntityGraphType.LOAD)
     List<CenterEquipment> findByCenter(Center center);
 
 }

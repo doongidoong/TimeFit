@@ -40,4 +40,9 @@ public class ReservationController {
         public List<ReservationUserResponse> getMyReservation(@AuthenticationPrincipal User user){
             return reservationService.getMyReservation(user);
         }
+
+        @GetMapping("/lock-test/{lockId}")
+        public Long lockTest(@PathVariable long lockId){
+            return reservationService.lockTest(lockId);
+        }
 }

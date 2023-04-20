@@ -76,15 +76,15 @@ class ReservationControllerTest {
         centerRepository.deleteAll();
     }
 
-    @AfterAll
-    void clean2(){
-        reservationRepository.deleteAll();
-        centerEquipmentRepository.deleteAll();
-        reservationRepository.deleteAll();
-        centerEquipmentRepository.deleteAll();
-        userRepository.deleteAll();
-        centerRepository.deleteAll();
-    }
+//    @AfterAll
+//    void clean2(){
+//        reservationRepository.deleteAll();
+//        centerEquipmentRepository.deleteAll();
+//        reservationRepository.deleteAll();
+//        centerEquipmentRepository.deleteAll();
+//        userRepository.deleteAll();
+//        centerRepository.deleteAll();
+//    }
     @Test
     @DisplayName("예약 확인")
     void test1() throws Exception{
@@ -200,39 +200,35 @@ class ReservationControllerTest {
     @DisplayName("예약 차있을 때")
     void test3() throws Exception{
         //given
-        List<Center> requestCenter = IntStream.range(0,20)
-                .mapToObj(i -> Center.builder()
-                        .name("센터" +i)
+        Center requestCenter = Center.builder()
+                        .name("센터")
                         .region("서울")
-                        .price(i*10000)
-                        .build()).collect(Collectors.toList());
-        centerRepository.saveAll(requestCenter);
+                        .price(10000)
+                        .build();
+        centerRepository.save(requestCenter);
 
-        List<CenterEquipment> requestEquip = IntStream.range(0,20)
-                .mapToObj(i -> CenterEquipment.builder()
-                        .center(requestCenter.get(i%5))
-                        .build()).collect(Collectors.toList());
-        centerEquipmentRepository.saveAll(requestEquip);
+        CenterEquipment requestEquip = CenterEquipment.builder()
+                        .center(requestCenter)
+                        .build();
+        centerEquipmentRepository.save(requestEquip);
 
         LocalDate now = LocalDate.now();
-        List<Reservation> requestReserve = IntStream.range(0,20)
-                .mapToObj(i -> Reservation.builder()
-                        .center(requestCenter.get(i%5))
-                        .centerEquipment(requestEquip.get(i%5))
+        Reservation requestReserve = Reservation.builder()
+                        .center(requestCenter)
+                        .centerEquipment(requestEquip)
                         .start(LocalDateTime.parse(now+"T10:15:30"))
                         .end(LocalDateTime.parse(now+"T10:25:30"))
-                        .build()).collect(Collectors.toList());
-        reservationRepository.saveAll(requestReserve);
+                        .build();
+        reservationRepository.save(requestReserve);
 
-        List<Long> ids = new ArrayList<>();
-        ids.add(requestEquip.get(1).getId());
+
         ReservationRequest request = ReservationRequest.builder()
-                .centerEquipmentId(requestEquip.get(1).getId())
+                .centerEquipmentId(requestEquip.getId())
                 .start(LocalDateTime.parse(now+"T10:15:30"))
                 .end(LocalDateTime.parse(now+"T10:20:30"))
                 .build();
 
-        mockMvc.perform(post("/center/{centerId}/reserve",requestCenter.get(1).getId())
+        mockMvc.perform(post("/center/{centerId}/reserve",requestCenter.getId())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isMethodNotAllowed())
