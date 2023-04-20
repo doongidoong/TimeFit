@@ -60,13 +60,10 @@ public class ReservationService {
     }
     // 예약 요청
     public void requestReservation(Long centerId, ReservationRequest request, User user){
-        //예약 있을 시 예외처리
-
         //예약이 있는지 DB에 조회 후 예약이 있다면 있을 시 예외처리
         if(!reservationRepository.check(centerId, request)){
             throw new ReservationExist();
         }
-
         // 예약 정보를 만들기 위해 센터 id와 기구 id로부터 정보를 불러옴
         Center center = centerRepository.findById(centerId)
                 .orElseThrow(CenterNotFound::new);
