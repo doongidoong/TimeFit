@@ -14,7 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @RequiredArgsConstructor
 @Configuration
-public class SecurityConfiguration {
+public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -34,7 +34,7 @@ public class SecurityConfiguration {
                 .antMatchers("/signin", "/signin/**", "/signup","/signup-center","/signup/**",
                         "/social/**","/centers","/signout","/equipment/**",
                         "upload-center","/upload-equipment","/equipment").permitAll() // 가입 및 인증 주소는 누구나 접근가능
-                .antMatchers(HttpMethod.GET, "/helloworld/**","/signup/**").permitAll() // hellowworld로 시작하는 GET요청 리소스는 누구나 접근가능
+                .antMatchers(HttpMethod.GET, "/helloworld/**","/signup/**", "/user" ).permitAll() // hellowworld로 시작하는 GET요청 리소스는 누구나 접근가능
                 .anyRequest().hasRole("USER") // 그외 나머지 요청은 모두 인증된 회원만 접근 가능
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class) // jwt token 필터를 id/password 인증 필터 전에 넣는다
