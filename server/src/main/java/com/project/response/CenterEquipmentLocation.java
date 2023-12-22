@@ -4,6 +4,7 @@ import com.project.domain.CenterEquipment;
 import com.project.domain.Equipment;
 import lombok.Getter;
 
+
 @Getter
 public class CenterEquipmentLocation {
 

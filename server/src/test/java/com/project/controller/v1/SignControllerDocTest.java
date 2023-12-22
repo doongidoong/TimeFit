@@ -222,8 +222,9 @@ class SignControllerDocTest {
                         )
                 .andExpect(status().isConflict())
                 .andDo(print())
-                .andDo(document("signup/check-email",requestParameters(
-                        parameterWithName("email").description("찾는 이메일")
+                .andDo(document("signup/check-email",
+                        queryParameters(
+                                parameterWithName("email").description("찾는 이메일")
                         )));
     }
 
@@ -234,7 +235,7 @@ class SignControllerDocTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("/signup/check-storeNumber"
-                        ,requestParameters(
+                        ,queryParameters(
                                 parameterWithName("number").description("등록자 번호"))));
 
     }
@@ -255,7 +256,7 @@ class SignControllerDocTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("/signin/find-email"
-                        ,requestParameters(
+                        ,queryParameters(
                                 parameterWithName("phoneNumber").description("핸드폰 번호"))));
     }
 
@@ -275,7 +276,7 @@ class SignControllerDocTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("/signin/find-password"
-                ,requestParameters(
+                ,queryParameters(
                         parameterWithName("email").description("이메일"))));
 
     }

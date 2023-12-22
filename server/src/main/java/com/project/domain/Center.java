@@ -2,12 +2,11 @@ package com.project.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.*;
+
+import jakarta.persistence.*;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +15,6 @@ import java.util.Set;
 @Getter  //getter 자동 선언
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PUBLIC)  //인자없는 생성자를 자동 생성
-//@TypeDef(name = "json", typeClass = JsonType.class)
 @Table(name="center")
 public class Center {
 

@@ -31,10 +31,10 @@ public class SecurityConfig {
                 .and()
 //                .antMatchers("/admin").hasRole("ADMIN")
                 .authorizeRequests() // 다음 리퀘스트에 대한 사용권한 체크
-                .antMatchers("/signin", "/signin/**", "/signup","/signup-center","/signup/**",
+                .requestMatchers("/signin", "/signin/**", "/signup","/signup-center","/signup/**",
                         "/social/**","/centers","/signout","/equipment/**",
                         "upload-center","/upload-equipment","/equipment").permitAll() // 가입 및 인증 주소는 누구나 접근가능
-                .antMatchers(HttpMethod.GET, "/helloworld/**","/signup/**", "/user" ).permitAll() // hellowworld로 시작하는 GET요청 리소스는 누구나 접근가능
+                .requestMatchers(HttpMethod.GET, "/helloworld/**","/signup/**", "/user" ).permitAll() // hellowworld로 시작하는 GET요청 리소스는 누구나 접근가능
                 .anyRequest().hasRole("USER") // 그외 나머지 요청은 모두 인증된 회원만 접근 가능
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class) // jwt token 필터를 id/password 인증 필터 전에 넣는다

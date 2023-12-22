@@ -6,7 +6,7 @@ import com.project.request.ReservationRequest;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.LockModeType;
+import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

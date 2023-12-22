@@ -4,7 +4,7 @@ package com.project.domain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Builder
 @Entity  //데이터베이스에 사용될 entity를 정의

@@ -3,7 +3,7 @@ package com.project.request;
 import com.project.domain.Center;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.File;
 
 

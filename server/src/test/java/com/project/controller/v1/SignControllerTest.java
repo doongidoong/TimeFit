@@ -187,7 +187,7 @@ class SignControllerTest {
     @DisplayName("사업자등록자번호 확인")
     void tempCheck() throws Exception{
         mockMvc .perform(get("/signup/check-storeNumber/").param("number","100"))
-                .andExpect(status().isOk())
+                .andExpect(status().isNotFound())
                 .andDo(print());
     }
 

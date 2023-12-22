@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotBlank;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
 
 @Setter
 @Getter
